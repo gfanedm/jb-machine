@@ -1,6 +1,6 @@
 package io.github.gfanedm.machine.methods;
 
-import io.github.gfanedm.machine.instruction.Instruction;
+import io.github.gfanedm.machine.instructions.Instruction;
 import io.github.gfanedm.machine.memory.MemoryHandler;
 
 public class SubtractionMethod extends Method {
@@ -11,8 +11,14 @@ public class SubtractionMethod extends Method {
 
 	@Override
 	public void executeFunction(MemoryHandler memoryHandler, Instruction instruction) {
-		memoryHandler.getMemory().replace(instruction.get(3),
-				memoryHandler.getMemory().get(instruction.get(1)) - memoryHandler.getMemory().get(instruction.get(2)));
+		int pos1 = memoryHandler.getUseList().get(0).getWords().get(instruction.getList().get(0).getWord());
+		int pos2 = memoryHandler.getUseList().get(1).getWords().get(instruction.getList().get(1).getWord());
+
+		int sum = pos1 - pos2;
+
+		// System.out.println("SUBT " + pos1 + " - " + pos2 + " = " + sum);
+
+		memoryHandler.getUseList().get(2).getWords().replace(instruction.getList().get(2).getWord(), sum);
 	}
 
 }

@@ -1,6 +1,6 @@
 package io.github.gfanedm.machine.methods;
 
-import io.github.gfanedm.machine.instruction.Instruction;
+import io.github.gfanedm.machine.instructions.Instruction;
 import io.github.gfanedm.machine.memory.MemoryHandler;
 
 public class Method {
