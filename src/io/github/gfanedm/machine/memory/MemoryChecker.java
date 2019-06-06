@@ -1,5 +1,7 @@
 package io.github.gfanedm.machine.memory;
 
+import java.util.HashMap;
+
 public class MemoryChecker {
 
 	private final MemoryHandler memoryHandler;
@@ -7,65 +9,85 @@ public class MemoryChecker {
 	public MemoryChecker(MemoryHandler memoryHandler) {
 		this.memoryHandler = memoryHandler;
 	}
+	
 
 	public MemoryBlock memorySearch(MemoryAddress address) {
-		int posCache1 = address.getBlock() % memoryHandler.getCacheMemory().maxSize();
-		int posCache2 = address.getBlock() % memoryHandler.getSlaveMemory().maxSize();
+		int posCache1 = address.getBlock() % memoryHandler.getCacheMemory().size();
+		int posCache2 = address.getBlock() % memoryHandler.getSecondMemory().size();
 
 		int cost = 0;
 
-		MemoryBlock cache = memoryHandler.getCacheMemory().get(posCache1);
-		MemoryBlock slave = memoryHandler.getSlaveMemory().get(posCache2);
-
-		if (cache.getAddress() == address.getBlock()) {
+		if (memoryHandler.getCacheMemory().get(posCache1).getAddress() == address.getBlock()) {
 
 			cost += 10;
-			cache.setCost(cost);
-			cache.setHit(1);
-			cache.setUpdate();
+			memoryHandler.getCacheMemory().get(posCache1).incrementTimes();
+			memoryHandler.getCacheMemory().get(posCache1).setCost(cost);
+			memoryHandler.getCacheMemory().get(posCache1).setHit(1);
+			memoryHandler.getCacheMemory().get(posCache1).setUpdate();
+			
+			memoryHandler.getCacheMemory().replace(posCache1, memoryHandler.getCacheMemory().get(posCache1));
+			
+			return memoryHandler.getCacheMemory().get(posCache1);
 
-			return memoryHandler.getCacheMemory().replace(posCache1, cache);
+		} else if (memoryHandler.getSecondMemory().get(posCache2).getAddress() == address.getBlock()) {
+			int posLeast = getLeastRecentlyUsed(memoryHandler.getCacheMemory());
 
-		} else if (slave.getAddress() == address.getBlock()) {
 			cost += 110;
-
-			slave.setHit(2);
-			slave.setUpdate();
-
-			return testCaches(posCache1, posCache2, cost);
+			memoryHandler.getSecondMemory().get(posCache2).incrementTimes();
+			memoryHandler.getSecondMemory().get(posCache2).setHit(2);
+			memoryHandler.getSecondMemory().get(posCache2).setUpdate();
+			
+			return testCaches(posLeast, posCache2, cost);
 		} else {
 
 			cost += 1110;
 
-			if (!slave.isUpdate()) {
-				memoryHandler.getSlaveMemory().replace(posCache2, memoryHandler.getMemory().get(address.getBlock()));
-				memoryHandler.getSlaveMemory().get(posCache2).setHit(3);
-				
-				return testCaches(posCache1, posCache2, cost);
+			int posLeastCache = getLeastRecentlyUsed(memoryHandler.getCacheMemory());
+			int posLeastSecond = getLeastRecentlyUsed(memoryHandler.getSecondMemory());
+
+
+			if (!memoryHandler.getSecondMemory().get(posLeastSecond).isUpdate()) {
+				memoryHandler.getSecondMemory().replace(posLeastSecond,	memoryHandler.getMemory().get(address.getBlock()));
+				memoryHandler.getSecondMemory().get(posLeastSecond).incrementTimes();
+				memoryHandler.getSecondMemory().get(posLeastSecond).setHit(3);
+
+				return testCaches(posLeastCache, posLeastSecond, cost);
 			} else {
-				
-				memoryHandler.getMemory().replace(slave.getAddress(), slave);
-				memoryHandler.getSlaveMemory().get(posCache2).setUpdate();
-				
-				memoryHandler.getSlaveMemory().replace(posCache2, memoryHandler.getMemory().get(address.getBlock()));
-				memoryHandler.getSlaveMemory().get(posCache2).setHit(3);
-				return testCaches(posCache1, posCache2, cost);
+
+				memoryHandler.getMemory().replace(memoryHandler.getSecondMemory().get(posLeastSecond).getAddress(), memoryHandler.getSecondMemory().get(posLeastSecond));
+				memoryHandler.getSecondMemory().get(posLeastSecond).incrementTimes();
+				memoryHandler.getSecondMemory().get(posLeastSecond).setUpdate();
+				memoryHandler.getSecondMemory().replace(posLeastSecond,	memoryHandler.getMemory().get(address.getBlock()));
+				memoryHandler.getSecondMemory().get(posLeastSecond).setHit(3);
+				return testCaches(posLeastCache, posLeastSecond, cost);
 			}
 		}
-
 	}
 
-	private MemoryBlock testCaches(int cachePos, int slavePos, int cost) {
+	private Integer getLeastRecentlyUsed(HashMap<Integer, MemoryBlock> cache) {
+		int low = Integer.MAX_VALUE;
+		int pos = 0;
+
+		for (int i = 0; i < cache.size(); i++) {
+			if(low > cache.get(i).getTimes()) {
+				low = cache.get(i).getTimes();
+				pos = i;
+			}
+		}
+		return pos;
+	}
+
+	private MemoryBlock testCaches(int cachePos, int secondPos, int cost) {
 		if (!memoryHandler.getCacheMemory().get(cachePos).isUpdate()) {
-			memoryHandler.getCacheMemory().replace(cachePos, memoryHandler.getSlaveMemory().get(slavePos));
+			memoryHandler.getCacheMemory().replace(cachePos, memoryHandler.getSecondMemory().get(secondPos));
 		} else {
 			MemoryBlock aux = memoryHandler.getCacheMemory().get(cachePos);
-			memoryHandler.getCacheMemory().replace(cachePos, memoryHandler.getSlaveMemory().get(slavePos));
-			memoryHandler.getSlaveMemory().replace(slavePos, aux);
+			memoryHandler.getCacheMemory().replace(cachePos, memoryHandler.getSecondMemory().get(secondPos));
+			memoryHandler.getSecondMemory().replace(secondPos, aux);
 		}
 
 		memoryHandler.getCacheMemory().get(cachePos).setCost(cost);
-
+		
 		return memoryHandler.getCacheMemory().get(cachePos);
 	}
 

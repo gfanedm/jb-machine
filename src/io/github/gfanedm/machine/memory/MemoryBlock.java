@@ -11,21 +11,21 @@ public class MemoryBlock {
 	private int address;
 	private boolean update;
 	private int cost, hit;
+	private int times;
 
 	public MemoryBlock(int address, int size, MemoryType memoryType) {
 		this.words = new SizeableHashMap<Integer, Integer>(size);
 
-		if (memoryType != MemoryType.CACHE) {
-			Random random = new Random();
-			for (int i = 0; i < size; i++) {
-				this.words.put(i, random.nextInt(1000));
-			}
+		Random random = new Random();
+		for (int i = 0; i < size; i++) {
+			this.words.put(i, random.nextInt(1000));
 		}
 
 		this.address = address;
 		this.update = false;
 		this.cost = 0;
 		this.hit = 0;
+		this.times = 0;
 	}
 
 	public SizeableHashMap<Integer, Integer> getWords() {
@@ -48,6 +48,10 @@ public class MemoryBlock {
 		return hit;
 	}
 
+	public int getTimes() {
+		return times;
+	}
+
 	public void setAddress(int address) {
 		this.address = address;
 	}
@@ -62,6 +66,10 @@ public class MemoryBlock {
 
 	public void setHit(int hit) {
 		this.hit = hit;
+	}
+
+	public void incrementTimes() {
+		this.times += 1;
 	}
 
 }

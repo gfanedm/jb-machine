@@ -7,13 +7,13 @@ public class MemoryHandler {
 	private int lines, columns;
 	private final SizeableHashMap<Integer, MemoryBlock> DATA_MEMORY;
 	private final SizeableHashMap<Integer, MemoryBlock> CACHE_MEMORY;
-	private final SizeableHashMap<Integer, MemoryBlock> SLAVE_CACHE_MEMORY;
+	private final SizeableHashMap<Integer, MemoryBlock> SECONDARY_CACHE_MEMORY;
 	private final SizeableHashMap<Integer, MemoryBlock> USE_LIST;
 
-	public MemoryHandler(int ram, int cacheSize, int slaveCacheSize, int wordsSize) throws Exception {
+	public MemoryHandler(int ram, int cacheSize, int secondaryCacheSize, int wordsSize) throws Exception {
 		this.lines = ram;
 
-		if (ram <= 0 || cacheSize <= 0 || slaveCacheSize <= 0 || wordsSize <= 0) {
+		if (ram <= 0 || cacheSize <= 0 || secondaryCacheSize <= 0 || wordsSize <= 0) {
 			throw new Exception("Invalid size of the memory");
 		}
 
@@ -26,13 +26,13 @@ public class MemoryHandler {
 		this.CACHE_MEMORY = new SizeableHashMap<Integer, MemoryBlock>(cacheSize);
 
 		for (int i = 0; i < cacheSize; i++) {
-			this.CACHE_MEMORY.put(i, new MemoryBlock(Integer.MIN_VALUE, wordsSize, MemoryType.CACHE));
+			this.CACHE_MEMORY.put(i, new MemoryBlock(i, wordsSize, MemoryType.CACHE));
 		}
 
-		this.SLAVE_CACHE_MEMORY = new SizeableHashMap<Integer, MemoryBlock>(slaveCacheSize);
+		this.SECONDARY_CACHE_MEMORY = new SizeableHashMap<Integer, MemoryBlock>(secondaryCacheSize);
 
-		for (int i = 0; i < slaveCacheSize; i++) {
-			this.SLAVE_CACHE_MEMORY.put(i, new MemoryBlock(Integer.MIN_VALUE, wordsSize, MemoryType.CACHE));
+		for (int i = 0; i < secondaryCacheSize; i++) {
+			this.SECONDARY_CACHE_MEMORY.put(i, new MemoryBlock(i, wordsSize, MemoryType.SECOND));
 		}
 
 		this.USE_LIST = new SizeableHashMap<Integer, MemoryBlock>(3);
@@ -58,8 +58,8 @@ public class MemoryHandler {
 		return CACHE_MEMORY;
 	}
 
-	public SizeableHashMap<Integer, MemoryBlock> getSlaveMemory() {
-		return SLAVE_CACHE_MEMORY;
+	public SizeableHashMap<Integer, MemoryBlock> getSecondMemory() {
+		return SECONDARY_CACHE_MEMORY;
 	}
 
 	public SizeableHashMap<Integer, MemoryBlock> getUseList() {
@@ -73,6 +73,17 @@ public class MemoryHandler {
 	}
 
 	public enum MemoryType {
-		RAM, CACHE, INVALID;
+		RAM(3), CACHE(1), SECOND(2), INVALID(-1);
+		
+		int type;
+
+		private MemoryType(int type) {
+			this.type = type;
+
+		}
+
+		public int getType() {
+			return type;
+		}
 	}
 }
