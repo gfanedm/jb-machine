@@ -1,6 +1,9 @@
 package io.github.gfanedm.machine.memory;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class MemoryChecker {
 
@@ -12,12 +15,12 @@ public class MemoryChecker {
 	
 
 	public MemoryBlock memorySearch(MemoryAddress address) {
-		int posCache1 = address.getBlock() % memoryHandler.getCacheMemory().size();
-		int posCache2 = address.getBlock() % memoryHandler.getSecondMemory().size();
+		int posCache1 = getAddress(memoryHandler.getCacheMemory(), address);
+		int posCache2 = getAddress(memoryHandler.getSecondMemory(), address);
 
 		int cost = 0;
 
-		if (memoryHandler.getCacheMemory().get(posCache1).getAddress() == address.getBlock()) {
+		if (posCache1 != -1) {
 
 			cost += 10;
 			memoryHandler.getCacheMemory().get(posCache1).incrementTimes();
@@ -26,17 +29,16 @@ public class MemoryChecker {
 			memoryHandler.getCacheMemory().get(posCache1).setUpdate();
 			
 			memoryHandler.getCacheMemory().replace(posCache1, memoryHandler.getCacheMemory().get(posCache1));
-			
 			return memoryHandler.getCacheMemory().get(posCache1);
 
-		} else if (memoryHandler.getSecondMemory().get(posCache2).getAddress() == address.getBlock()) {
+		} else if (posCache2 != -1) {
 			int posLeast = getLeastRecentlyUsed(memoryHandler.getCacheMemory());
 
 			cost += 110;
 			memoryHandler.getSecondMemory().get(posCache2).incrementTimes();
 			memoryHandler.getSecondMemory().get(posCache2).setHit(2);
 			memoryHandler.getSecondMemory().get(posCache2).setUpdate();
-			
+			memoryHandler.getSecondMemory().get(posCache2).setCost(cost);
 			return testCaches(posLeast, posCache2, cost);
 		} else {
 
@@ -45,12 +47,10 @@ public class MemoryChecker {
 			int posLeastCache = getLeastRecentlyUsed(memoryHandler.getCacheMemory());
 			int posLeastSecond = getLeastRecentlyUsed(memoryHandler.getSecondMemory());
 
-
 			if (!memoryHandler.getSecondMemory().get(posLeastSecond).isUpdate()) {
 				memoryHandler.getSecondMemory().replace(posLeastSecond,	memoryHandler.getMemory().get(address.getBlock()));
 				memoryHandler.getSecondMemory().get(posLeastSecond).incrementTimes();
 				memoryHandler.getSecondMemory().get(posLeastSecond).setHit(3);
-
 				return testCaches(posLeastCache, posLeastSecond, cost);
 			} else {
 
@@ -62,6 +62,10 @@ public class MemoryChecker {
 				return testCaches(posLeastCache, posLeastSecond, cost);
 			}
 		}
+	}
+
+	private Integer getAddress(HashMap<Integer, MemoryBlock> cache, MemoryAddress address){
+		return cache.keySet().stream().mapToInt(i -> i).filter(i -> cache.get(i).getAddress() == address.getBlock()).findFirst().orElse(-1);
 	}
 
 	private Integer getLeastRecentlyUsed(HashMap<Integer, MemoryBlock> cache) {
@@ -87,7 +91,7 @@ public class MemoryChecker {
 		}
 
 		memoryHandler.getCacheMemory().get(cachePos).setCost(cost);
-		
+
 		return memoryHandler.getCacheMemory().get(cachePos);
 	}
 

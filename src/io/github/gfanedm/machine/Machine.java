@@ -11,13 +11,12 @@ import io.github.gfanedm.machine.program.ProgramFactory;
 
 public class Machine {
 
-	public static final int CACHE_SIZE = 16;
+	public static final int CACHE_SIZE = 32;
 	public static final int SECONDARY_SIZE = 64;
-	public static final int RAM_SIZE = 256;
-	public static final int MACHINE_SIZE = 10000;
+	public static final int RAM_SIZE = 128;
 	public static final int WORDS_SIZE = 4;
 
-	private int cacheMiss = 0, cacheHit = 0, secondaryMiss = 0, secondaryHit = 0, ramMiss = 0, ramHit = 0, cost = 0;
+	private int cacheMiss = 0, cacheHit = 0, secondaryMiss = 0, secondaryHit = 0, ramHit = 0, cost = 0;
 
 	public MemoryHandler memoryHandler;
 	public ProgramFactory programFactory;
@@ -55,11 +54,11 @@ public class Machine {
 
 				addHit(data1, data2, data3);
 				memoryHandler.setList(data1, data2, data3);
-
-				System.out.println("\nCusto ate o momento do programa em execucao: " + cost);
-				System.out.println("C-HIT\t|C-MISS\t|S-HIT\t|S-MISS\t|R-HIT\t|R-MISS\n" + cacheHit + "\t|" + cacheMiss
-						+ "\t|" + secondaryHit + "\t|" + secondaryMiss + "\t|" + ramHit + "\t|" + ramMiss);
-
+				System.out.println("==========================================");
+				System.out.println("Custo ate o momento do programa em execucao: " + cost);
+				System.out.println("C-HIT\t|C-MISS\t|S-HIT\t|S-MISS\t|R-HIT\n" + cacheHit + "\t|" + cacheMiss
+						+ "\t|" + secondaryHit + "\t|" + secondaryMiss + "\t|" + ramHit);
+				System.out.println("==========================================");
 				pipelineHandler.execute(instruction, memoryHandler);
 
 				pc++;
@@ -69,14 +68,15 @@ public class Machine {
 		}
 
 		double total = cacheHit + secondaryHit + ramHit;
-
-		System.out.println("\nCusto total: " + cost);
-		System.out.println("C-HIT\t|C-MISS\t|S-HIT\t|S-MISS\t|R-HIT\t|R-MISS\n" + cacheHit + "\t|" + cacheMiss + "\t|"
-				+ secondaryHit + "\t|" + secondaryMiss + "\t|" + ramHit + "\t|" + ramMiss);
+		System.out.println("==========================================");
+		System.out.println("Custo total: " + cost);
+		System.out.println("C-HIT\t|C-MISS\t|S-HIT\t|S-MISS\t|R-HIT\t\n" + cacheHit + "\t|" + cacheMiss + "\t|"
+				+ secondaryHit + "\t|" + secondaryMiss + "\t|" + ramHit);
 		System.out.println("Taxa C1 = " + (cacheHit * 100 / total) + "%");
 		System.out.println("Taxa C2 = " + (secondaryHit * 100 / total) + "%");
 		System.out.println("Taxa RAM = " + (ramHit * 100 / total) + "%");
 		System.out.println("Total: " + total);
+		System.out.println("==========================================");
 	}
 
 	public void addHit(MemoryBlock... blocks) {
