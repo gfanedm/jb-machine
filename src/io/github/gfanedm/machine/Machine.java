@@ -11,9 +11,9 @@ import io.github.gfanedm.machine.program.ProgramFactory;
 
 public class Machine {
 
-	public static final int CACHE_SIZE = 32;
-	public static final int SECONDARY_SIZE = 64;
-	public static final int RAM_SIZE = 128;
+	public static final int CACHE_SIZE = 16;
+	public static final int SECONDARY_SIZE = 32;
+	public static final int RAM_SIZE = 64;
 	public static final int WORDS_SIZE = 4;
 
 	private int cacheMiss = 0, cacheHit = 0, secondaryMiss = 0, secondaryHit = 0, ramHit = 0, cost = 0;
