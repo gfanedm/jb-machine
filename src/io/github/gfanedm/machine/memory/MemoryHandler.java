@@ -9,8 +9,10 @@ public class MemoryHandler {
 	private final SizeableHashMap<Integer, MemoryBlock> CACHE_MEMORY;
 	private final SizeableHashMap<Integer, MemoryBlock> SECONDARY_CACHE_MEMORY;
 	private final SizeableHashMap<Integer, MemoryBlock> USE_LIST;
+	private final HardDisk hardDisk;
 
-	public MemoryHandler(int ram, int cacheSize, int secondaryCacheSize, int wordsSize) throws Exception {
+	public MemoryHandler(int ram, int cacheSize, int secondaryCacheSize, int wordsSize, String fileName)
+			throws Exception {
 		this.lines = ram;
 
 		if (ram <= 0 || cacheSize <= 0 || secondaryCacheSize <= 0 || wordsSize <= 0) {
@@ -40,6 +42,8 @@ public class MemoryHandler {
 		for (int i = 0; i < 3; i++) {
 			this.USE_LIST.put(i, new MemoryBlock(0, i, MemoryType.INVALID));
 		}
+
+		this.hardDisk = new HardDisk(fileName);
 	}
 
 	public int getColumns() {
@@ -66,6 +70,10 @@ public class MemoryHandler {
 		return USE_LIST;
 	}
 
+	public HardDisk getHardDisk() {
+		return hardDisk;
+	}
+
 	public void setList(MemoryBlock... blocks) {
 		for (int i = 0; i < blocks.length; i++) {
 			getUseList().replace(i, blocks[i]);
@@ -73,8 +81,8 @@ public class MemoryHandler {
 	}
 
 	public enum MemoryType {
-		RAM(3), CACHE(1), SECOND(2), INVALID(-1);
-		
+		HARDDISK(4), RAM(3), CACHE(1), SECOND(2), INVALID(-1);
+
 		int type;
 
 		private MemoryType(int type) {

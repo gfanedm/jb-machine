@@ -15,6 +15,7 @@ public class Machine {
 	public static final int SECONDARY_SIZE = 32;
 	public static final int RAM_SIZE = 64;
 	public static final int WORDS_SIZE = 4;
+	public static final String HARD_DISK_FILE = "hd.bin";
 
 	private int cacheMiss = 0, cacheHit = 0, secondaryMiss = 0, secondaryHit = 0, ramHit = 0, cost = 0;
 
@@ -32,7 +33,7 @@ public class Machine {
 		int opcode = 0, pc = 0;
 		try {
 
-			this.memoryHandler = new MemoryHandler(RAM_SIZE, CACHE_SIZE, SECONDARY_SIZE, WORDS_SIZE);
+			this.memoryHandler = new MemoryHandler(RAM_SIZE, CACHE_SIZE, SECONDARY_SIZE, WORDS_SIZE, HARD_DISK_FILE);
 			this.pipelineHandler = new PipelineHandler();
 			this.memoryChecker = new MemoryChecker(memoryHandler);
 
@@ -77,6 +78,7 @@ public class Machine {
 		System.out.println("Taxa RAM = " + (ramHit * 100 / total) + "%");
 		System.out.println("Total: " + total);
 		System.out.println("==========================================");
+		
 	}
 
 	public void addHit(MemoryBlock... blocks) {

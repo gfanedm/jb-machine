@@ -1,9 +1,6 @@
 package io.github.gfanedm.machine.memory;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 
 public class MemoryChecker {
 
@@ -13,7 +10,6 @@ public class MemoryChecker {
 		this.memoryHandler = memoryHandler;
 	}
 	
-
 	public MemoryBlock memorySearch(MemoryAddress address) {
 		int posCache1 = getAddress(memoryHandler.getCacheMemory(), address);
 		int posCache2 = getAddress(memoryHandler.getSecondMemory(), address);
