@@ -1,11 +1,17 @@
 package io.github.gfanedm.machine.memory;
 
+import java.io.Serializable;
 import java.util.Random;
 
 import io.github.gfanedm.machine.map.SizeableHashMap;
 import io.github.gfanedm.machine.memory.MemoryHandler.MemoryType;
 
-public class MemoryBlock {
+public class MemoryBlock implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private final SizeableHashMap<Integer, Integer> words;
 	private int address;
@@ -70,6 +76,14 @@ public class MemoryBlock {
 
 	public void incrementTimes() {
 		this.times += 1;
+	}
+
+	public void printTable() {
+		System.out.println("--------------------");
+		for (int j = 0; j < words.size(); j++) {
+			System.out.println(j + "|" + words.get(j));
+		}
+		System.out.println("--------------------");
 	}
 
 }

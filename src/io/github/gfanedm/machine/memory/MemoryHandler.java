@@ -8,6 +8,7 @@ public class MemoryHandler {
 	private final SizeableHashMap<Integer, MemoryBlock> DATA_MEMORY;
 	private final SizeableHashMap<Integer, MemoryBlock> CACHE_MEMORY;
 	private final SizeableHashMap<Integer, MemoryBlock> SECONDARY_CACHE_MEMORY;
+	private final SizeableHashMap<Integer, MemoryBlock> HARD_DISK_MEMORY;
 	private final SizeableHashMap<Integer, MemoryBlock> USE_LIST;
 	private final HardDisk hardDisk;
 
@@ -36,6 +37,12 @@ public class MemoryHandler {
 		for (int i = 0; i < secondaryCacheSize; i++) {
 			this.SECONDARY_CACHE_MEMORY.put(i, new MemoryBlock(i, wordsSize, MemoryType.SECOND));
 		}
+		
+		this.HARD_DISK_MEMORY = new SizeableHashMap<Integer, MemoryBlock>(ram);
+
+		for (int i = 0; i < ram; i++) {
+			this.HARD_DISK_MEMORY.put(i, new MemoryBlock(i, wordsSize, MemoryType.HARDDISK));
+		}
 
 		this.USE_LIST = new SizeableHashMap<Integer, MemoryBlock>(3);
 
@@ -43,7 +50,7 @@ public class MemoryHandler {
 			this.USE_LIST.put(i, new MemoryBlock(0, i, MemoryType.INVALID));
 		}
 
-		this.hardDisk = new HardDisk(fileName);
+		this.hardDisk = new HardDisk(fileName, this);
 	}
 
 	public int getColumns() {
@@ -64,6 +71,10 @@ public class MemoryHandler {
 
 	public SizeableHashMap<Integer, MemoryBlock> getSecondMemory() {
 		return SECONDARY_CACHE_MEMORY;
+	}
+	
+	public SizeableHashMap<Integer, MemoryBlock> getHardDiskMemory() {
+		return HARD_DISK_MEMORY;
 	}
 
 	public SizeableHashMap<Integer, MemoryBlock> getUseList() {

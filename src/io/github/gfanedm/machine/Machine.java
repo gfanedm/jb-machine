@@ -57,13 +57,14 @@ public class Machine {
 				memoryHandler.setList(data1, data2, data3);
 				System.out.println("==========================================");
 				System.out.println("Custo ate o momento do programa em execucao: " + cost);
-				System.out.println("C-HIT\t|C-MISS\t|S-HIT\t|S-MISS\t|R-HIT\n" + cacheHit + "\t|" + cacheMiss
-						+ "\t|" + secondaryHit + "\t|" + secondaryMiss + "\t|" + ramHit);
+				System.out.println("C-HIT\t|C-MISS\t|S-HIT\t|S-MISS\t|R-HIT\n" + cacheHit + "\t|" + cacheMiss + "\t|"
+						+ secondaryHit + "\t|" + secondaryMiss + "\t|" + ramHit);
 				System.out.println("==========================================");
 				pipelineHandler.execute(instruction, memoryHandler);
 
 				pc++;
 			}
+						
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -78,7 +79,7 @@ public class Machine {
 		System.out.println("Taxa RAM = " + (ramHit * 100 / total) + "%");
 		System.out.println("Total: " + total);
 		System.out.println("==========================================");
-		
+
 	}
 
 	public void addHit(MemoryBlock... blocks) {
