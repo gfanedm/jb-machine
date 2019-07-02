@@ -3,11 +3,9 @@ package io.github.gfanedm.machine.memory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.FileAlreadyExistsException;
-import java.util.Collection;
 
 public class HardDisk {
 
@@ -34,21 +32,12 @@ public class HardDisk {
 
 	}
 
-	public boolean write(Collection<MemoryBlock> blocks) {
+	public boolean write(MemoryBlock[] blocks) {
 		try {
 			ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file));
-
-			blocks.forEach(block -> {
-				try {
-					stream.writeObject(block);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			});
-
+			stream.writeObject(blocks);
 			stream.flush();
 			stream.close();
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -77,15 +66,12 @@ public class HardDisk {
 
 	public boolean readAll() {
 		try {
-			int pos = 0;
-			long size = 0;
-			MemoryBlock block;
-			while (size < file.length()) {
-				block = readBlock(size);
-				if (block != null) {
-					memoryHandler.getHardDiskMemory().replace(pos++, block);
+			MemoryBlock[] blocks = readBlock();
+			if (blocks != null) {
+				int i = 0;
+				for(MemoryBlock block : blocks ) {
+					memoryHandler.getHardDiskMemory().replace(i++,block);
 				}
-				size++;
 			}
 			return true;
 		} catch (Exception e) {
@@ -94,14 +80,10 @@ public class HardDisk {
 		}
 	}
 
-	public MemoryBlock readBlock(long pos) {
+	public MemoryBlock[] readBlock() {
 		try {
 			ObjectInputStream stream = new ObjectInputStream(new FileInputStream(file));
-
-			stream.skip(pos);
-
-			MemoryBlock memoryBlock = (MemoryBlock) stream.readObject();
-
+			MemoryBlock[] memoryBlock = (MemoryBlock[]) stream.readObject();
 			stream.close();
 			return memoryBlock;
 		} catch (Exception e) {

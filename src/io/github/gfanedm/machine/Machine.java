@@ -64,7 +64,26 @@ public class Machine {
 
 				pc++;
 			}
-						
+			
+			System.out.println("Primeiro aaaa");
+			for (int i = 0; i < memoryHandler.getHardDiskMemory().size(); i++) {
+				memoryHandler.getHardDiskMemory().get(i).printTable();
+			}
+			System.out.println("Segundo aaaa");
+			for (int i = 0; i < memoryHandler.getMemory().size(); i++) {
+				memoryHandler.getMemory().get(i).printTable();
+			}
+			
+			System.out.println("Terceiro aaaa");
+			
+			
+			memoryHandler.getHardDisk().write(memoryHandler.getMemory().values().toArray(new MemoryBlock[memoryHandler.getMemory().values().size()]));
+			System.out.println(memoryHandler.getHardDisk().readAll() + " = aaaaaaaaaaaaaaaaaaaaa");
+			
+			for (int i = 0; i < memoryHandler.getHardDiskMemory().size(); i++) {
+				memoryHandler.getHardDiskMemory().get(i).printTable();
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
