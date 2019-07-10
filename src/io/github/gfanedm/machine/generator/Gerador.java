@@ -17,7 +17,7 @@ public class Gerador {
 	static final int REPETICOES = 70; // (0 <= REPETICOES <= 100) Porcentagem que representa a quantidade de blocos de FOR repetidos dentro do NUM_INS
 	// O mesmo bloco (FOR) aparecera "REPETICOES(%)" da quantidade total de blocos (FORs), nao necessariamente em sequencia.
 	static final int TAM_MEM = 64;  // Tamanho da RAM
-	static final int NUM_INS = 1000; // Quantidade de instrucoes -> Maior que o TAM_FOR(vide item 2 das observacoes).
+	static final int NUM_INS = 100000; // Quantidade de instrucoes -> Maior que o TAM_FOR(vide item 2 das observacoes).
 	static final int QUANTIDADE_DE_ENDERECOS = 3; // Tamanho da RAM
 	static final int ENDERECO_DE_PALAVRA = 1; // 1:SIM || 2:NAO
 	// 1: -> IMPRIME O ENDERECO DA PALAVRA (0 A 3) APOS --- CADA --- ENDERECO DE BLOCO (ATE TAM_RAM-1) vide instrucoes.txt

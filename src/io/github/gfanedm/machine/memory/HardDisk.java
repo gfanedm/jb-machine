@@ -1,20 +1,21 @@
 package io.github.gfanedm.machine.memory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.RandomAccessFile;
 import java.nio.file.FileAlreadyExistsException;
+
+import io.github.gfanedm.machine.map.SizeableHashMap;
+import io.github.gfanedm.machine.memory.MemoryHandler.MemoryType;
 
 public class HardDisk {
 
-	public final MemoryHandler memoryHandler;
+	private static final MemoryBlock SAMPLE = new MemoryBlock(0, 4, MemoryType.HARDDISK);
+
+	private static final int MEMORY_SIZE = SAMPLE.serialize().length;
 
 	public final File file;
 
-	public HardDisk(String fileName, MemoryHandler memoryHandler) throws Exception {
-		this.memoryHandler = memoryHandler;
+	public HardDisk(String fileName) throws Exception {
 
 		this.file = new File(fileName);
 
@@ -29,15 +30,15 @@ public class HardDisk {
 				throw new FileAlreadyExistsException("The hard disk file is a directory");
 			}
 		}
-
 	}
 
 	public boolean write(MemoryBlock[] blocks) {
 		try {
-			ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file));
-			stream.writeObject(blocks);
-			stream.flush();
-			stream.close();
+			int a = 0;
+			for (MemoryBlock block : blocks) {
+				writeOne(block, a * block.serialize().length);
+				a++;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -45,32 +46,41 @@ public class HardDisk {
 		return true;
 	}
 
-	public boolean read() {
+	public boolean writeOne(MemoryBlock block, int pos) {
 		try {
-			ObjectInputStream stream = new ObjectInputStream(new FileInputStream(file));
-
-			int i = 0;
-			MemoryBlock block;
-			while ((block = (MemoryBlock) stream.readObject()) != null) {
-				memoryHandler.getHardDiskMemory().replace(i++, block);
-			}
-
-			stream.close();
-
-			return true;
+			RandomAccessFile random = new RandomAccessFile(file, "rw");
+			random.skipBytes(pos);
+			random.write(block.serialize());
+			random.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
 		}
+		return true;
 	}
 
-	public boolean readAll() {
+	public MemoryBlock readOne(int pos) {
 		try {
-			MemoryBlock[] blocks = readBlock();
-			if (blocks != null) {
-				int i = 0;
-				for(MemoryBlock block : blocks ) {
-					memoryHandler.getHardDiskMemory().replace(i++,block);
+			byte[] reciever = SAMPLE.serialize();
+
+			RandomAccessFile random = new RandomAccessFile(file, "rw");
+			random.skipBytes(pos);
+			random.read(reciever);
+			random.close();
+
+			return MemoryBlock.deserialize(reciever);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public boolean read(SizeableHashMap<Integer, MemoryBlock> hardDisk) {
+		try {
+			MemoryBlock block;
+			for (int i = 0; i < hardDisk.maxSize(); i++) {
+				if ((block = readOne(i * MEMORY_SIZE)) != null) {
+					hardDisk.put(i, block);
 				}
 			}
 			return true;
@@ -79,17 +89,4 @@ public class HardDisk {
 			return false;
 		}
 	}
-
-	public MemoryBlock[] readBlock() {
-		try {
-			ObjectInputStream stream = new ObjectInputStream(new FileInputStream(file));
-			MemoryBlock[] memoryBlock = (MemoryBlock[]) stream.readObject();
-			stream.close();
-			return memoryBlock;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
 }

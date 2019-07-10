@@ -50,7 +50,7 @@ public class MemoryHandler {
 			this.USE_LIST.put(i, new MemoryBlock(0, i, MemoryType.INVALID));
 		}
 
-		this.hardDisk = new HardDisk(fileName, this);
+		this.hardDisk = new HardDisk(fileName);
 	}
 
 	public int getColumns() {

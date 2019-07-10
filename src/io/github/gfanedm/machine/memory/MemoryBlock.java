@@ -1,5 +1,9 @@
 package io.github.gfanedm.machine.memory;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Random;
 
@@ -84,6 +88,31 @@ public class MemoryBlock implements Serializable {
 			System.out.println(j + "|" + words.get(j));
 		}
 		System.out.println("--------------------");
+	}
+
+	public String toString() {
+		return String.format("{%d, %b, %d, %d}", address, update, cost, hit, times);
+	}
+
+	public byte[] serialize() {
+		try {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			ObjectOutputStream os = new ObjectOutputStream(out);
+			os.writeObject(this);
+			return out.toByteArray();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static MemoryBlock deserialize(byte[] data) {
+		try {
+			return (MemoryBlock) new ObjectInputStream(new ByteArrayInputStream(data)).readObject();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }
