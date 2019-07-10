@@ -22,6 +22,7 @@ public class MemoryBlock implements Serializable {
 	private boolean update;
 	private int cost, hit;
 	private int times;
+	private MemoryType memoryType;
 
 	public MemoryBlock(int address, int size, MemoryType memoryType) {
 		this.words = new SizeableHashMap<Integer, Integer>(size);
@@ -36,6 +37,7 @@ public class MemoryBlock implements Serializable {
 		this.cost = 0;
 		this.hit = 0;
 		this.times = 0;
+		this.memoryType = memoryType;
 	}
 
 	public SizeableHashMap<Integer, Integer> getWords() {
@@ -90,6 +92,10 @@ public class MemoryBlock implements Serializable {
 		System.out.println("--------------------");
 	}
 
+	public MemoryType getMemoryType() {
+		return memoryType;
+	}
+	
 	public String toString() {
 		return String.format("{%d, %b, %d, %d}", address, update, cost, hit, times);
 	}

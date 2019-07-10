@@ -12,7 +12,7 @@ public class TestMachine {
 		MemoryBlock test2 = new MemoryBlock(123, 4, MemoryType.HARDDISK);
 		test1.setAddress(1000);
 
-		HardDisk hardDisk = new HardDisk("test.bin");
+		HardDisk hardDisk = new HardDisk("hd.bin");
 		hardDisk.writeOne(test1, 0);
 		hardDisk.writeOne(test2, test1.serialize().length);
 		MemoryBlock block = hardDisk.readOne(0);

@@ -18,7 +18,7 @@ public class Machine implements Runnable {
 	public static final int WORDS_SIZE = 4;
 	public static final String HARD_DISK_FILE = "hd.bin";
 
-	private int cacheMiss = 0, cacheHit = 0, secondaryMiss = 0, secondaryHit = 0, ramHit = 0, hdHit = 0, cost = 0;
+	public static int cacheMiss = 0, cacheHit = 0, secondaryMiss = 0, secondaryHit = 0, ramHit = 0, hdHit = 0, cost = 0;
 
 	public MemoryHandler memoryHandler;
 	public ProgramFactory programFactory;
@@ -42,9 +42,14 @@ public class Machine implements Runnable {
 			this.programFactory = new ProgramFactory(pipelineHandler);
 
 			List<Instruction> ins = programFactory.fileProgram("instrucoes.txt");
-
-			while (interruption.isRunning() && opcode != -1) {
-
+			
+			memoryHandler.getHardDisk().read(memoryHandler.getHardDiskMemory());
+		
+			while (opcode != -1) {
+				if (!interruption.isRunning()){
+					continue;
+				}
+				
 				Instruction instruction = ins.get(pc);
 
 				opcode = instruction.getOpCode();
@@ -57,34 +62,15 @@ public class Machine implements Runnable {
 
 				addHit(data1, data2, data3);
 				memoryHandler.setList(data1, data2, data3);
-				System.out.println("==========================================");
-				System.out.println("Custo ate o momento do programa em execucao: " + cost);
-				System.out.println("C-HIT\t|C-MISS\t|S-HIT\t|S-MISS\t|R-HIT\n" + cacheHit + "\t|" + cacheMiss + "\t|"
-						+ secondaryHit + "\t|" + secondaryMiss + "\t|" + ramHit);
-				System.out.println("==========================================");
+//				System.out.println("==========================================");
+//				System.out.println("Custo ate o momento do programa em execucao: " + cost);
+//				System.out.println("C-HIT\t|C-MISS\t|S-HIT\t|S-MISS\t|R-HIT\n" + cacheHit + "\t|" + cacheMiss + "\t|"
+//						+ secondaryHit + "\t|" + secondaryMiss + "\t|" + ramHit);
+//				System.out.println("==========================================");
 				pipelineHandler.execute(instruction, memoryHandler);
 
 				pc++;
 			}
-
-//			System.out.println("Primeiro aaaa");
-//			for (int i = 0; i < memoryHandler.getHardDiskMemory().size(); i++) {
-//				memoryHandler.getHardDiskMemory().get(i).printTable();
-//			}
-//			System.out.println("Segundo aaaa");
-//			for (int i = 0; i < memoryHandler.getMemory().size(); i++) {
-//				memoryHandler.getMemory().get(i).printTable();
-//			}
-//
-//			System.out.println("Terceiro aaaa");
-//
-//			memoryHandler.getHardDisk().write(memoryHandler.getMemory().values()
-//					.toArray(new MemoryBlock[memoryHandler.getMemory().values().size()]));
-//			System.out.println(memoryHandler.getHardDisk().readAll() + " = aaaaaaaaaaaaaaaaaaaaa");
-//
-//			for (int i = 0; i < memoryHandler.getHardDiskMemory().size(); i++) {
-//				memoryHandler.getHardDiskMemory().get(i).printTable();
-//			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -97,12 +83,13 @@ public class Machine implements Runnable {
 				+ secondaryHit + "\t|" + secondaryMiss + "\t|" + ramHit);
 		System.out.println("Taxa C1 = " + (cacheHit * 100 / total) + "%");
 		System.out.println("Taxa C2 = " + (secondaryHit * 100 / total) + "%");
-		System.out.println("Taxa HD = " + (hdHit * 100 / total) + "%");
 		System.out.println("Taxa RAM = " + (ramHit * 100 / total) + "%");
+		System.out.println("Taxa HD = " + (hdHit * 100 / total) + "%");
 		System.out.println("Total: " + total);
 		System.out.println("==========================================");
-		
+
 		interruption.setRunning(false);
+		System.exit(0);
 	}
 
 	public void addHit(MemoryBlock... blocks) {
