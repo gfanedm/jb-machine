@@ -7,30 +7,35 @@ import javax.naming.SizeLimitExceededException;
 public class SizeableList<V> extends ArrayList<V> {
 
 	private static final long serialVersionUID = 1L;
-	
-    private int maxSize;
-    
-    public SizeableList() {
+
+	private int maxSize;
+
+	public SizeableList() {
 		super();
 		this.maxSize = Integer.MAX_VALUE;
 	}
-    
-    public SizeableList(int maxSize) {
-        super();
-        
-        this.maxSize = maxSize;
-    }
 
-	public boolean add(V value) {
-        try {
-        	if (size() >= maxSize) {
-        		throw new SizeLimitExceededException("The orignal size is " + maxSize);
-        	}else {
-        		return super.add(value);
-        	}
-		}catch (Exception exception) {
+	public SizeableList(int maxSize) {
+		super();
+
+		this.maxSize = maxSize;
+	}
+
+	@Override
+	public boolean add(V element) {
+		try {
+			if (size() >= maxSize && !contains(element)) {
+				throw new SizeLimitExceededException("The orignal size is " + maxSize);
+			} else {
+				super.add(element);
+			}
+		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
-		return false;
-    }
-  }
+		return super.add(element);
+	}
+	
+	public int getMaxSize() {
+		return maxSize;
+	}
+}

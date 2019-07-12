@@ -7,29 +7,27 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Random;
 
-import io.github.gfanedm.machine.map.SizeableHashMap;
-import io.github.gfanedm.machine.memory.MemoryHandler.MemoryType;
+import io.github.gfanedm.machine.map.SizeableList;
 
 public class MemoryBlock implements Serializable {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 7989228035657266609L;
 
-	private final SizeableHashMap<Integer, Integer> words;
+	private final SizeableList<Integer> words;
 	private int address;
 	private boolean update;
 	private int cost, hit;
 	private int times;
-	private MemoryType memoryType;
 
-	public MemoryBlock(int address, int size, MemoryType memoryType) {
-		this.words = new SizeableHashMap<Integer, Integer>(size);
+	public MemoryBlock(int address, int size) {
+		this.words = new SizeableList<Integer>(size);
 
 		Random random = new Random();
 		for (int i = 0; i < size; i++) {
-			this.words.put(i, random.nextInt(1000));
+			this.words.add(i, random.nextInt(1000));
 		}
 
 		this.address = address;
@@ -37,10 +35,9 @@ public class MemoryBlock implements Serializable {
 		this.cost = 0;
 		this.hit = 0;
 		this.times = 0;
-		this.memoryType = memoryType;
 	}
 
-	public SizeableHashMap<Integer, Integer> getWords() {
+	public SizeableList<Integer> getWords() {
 		return words;
 	}
 
@@ -92,10 +89,6 @@ public class MemoryBlock implements Serializable {
 		System.out.println("--------------------");
 	}
 
-	public MemoryType getMemoryType() {
-		return memoryType;
-	}
-	
 	public String toString() {
 		return String.format("{%d, %b, %d, %d}", address, update, cost, hit, times);
 	}
@@ -114,7 +107,10 @@ public class MemoryBlock implements Serializable {
 
 	public static MemoryBlock deserialize(byte[] data) {
 		try {
-			return (MemoryBlock) new ObjectInputStream(new ByteArrayInputStream(data)).readObject();
+			ByteArrayInputStream bs = new ByteArrayInputStream(data);
+			ObjectInputStream is = new ObjectInputStream(bs);
+			MemoryBlock block = (MemoryBlock) is.readObject();
+			return block;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
