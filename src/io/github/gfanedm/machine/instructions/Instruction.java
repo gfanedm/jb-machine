@@ -15,8 +15,8 @@ public class Instruction {
 		if (values.length == 0) {
 			return;
 		}
-		for (MemoryAddress i : values) {
-			list.add(i);
+		for (int i = 0; i < values.length; i++) {
+			list.add(i, values[i]);
 		}
 	}
 	

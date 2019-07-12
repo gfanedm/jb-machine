@@ -1,18 +1,18 @@
 package io.github.gfanedm.machine.memory;
 
-import io.github.gfanedm.machine.map.SizeableHashMap;
+import io.github.gfanedm.machine.map.SizeableList;
 
 public class MemoryHandler {
 
 	private int lines, columns;
-	private final SizeableHashMap<Integer, MemoryBlock> DATA_MEMORY;
-	private final SizeableHashMap<Integer, MemoryBlock> CACHE_MEMORY;
-	private final SizeableHashMap<Integer, MemoryBlock> SECONDARY_CACHE_MEMORY;
-	private final SizeableHashMap<Integer, MemoryBlock> HARD_DISK_MEMORY;
-	private final SizeableHashMap<Integer, MemoryBlock> USE_LIST;
+	private final SizeableList<MemoryBlock> DATA_MEMORY;
+	private final SizeableList<MemoryBlock> CACHE_MEMORY;
+	private final SizeableList<MemoryBlock> SECONDARY_CACHE_MEMORY;
+	private final SizeableList<MemoryBlock> HARD_DISK_MEMORY;
+	private final SizeableList<MemoryBlock> USE_LIST;
 	private final HardDisk hardDisk;
 
-	public MemoryHandler(int ram, int cacheSize, int secondaryCacheSize, int wordsSize, String fileName)
+	public MemoryHandler(int ram, int cacheSize, int secondaryCacheSize, int wordsSize, int hdSize, String fileName)
 			throws Exception {
 		this.lines = ram;
 
@@ -20,37 +20,38 @@ public class MemoryHandler {
 			throw new Exception("Invalid size of the memory");
 		}
 
-		this.DATA_MEMORY = new SizeableHashMap<Integer, MemoryBlock>(ram);
+		this.DATA_MEMORY = new SizeableList<MemoryBlock>(ram);
 
 		for (int i = 0; i < ram; i++) {
-			this.DATA_MEMORY.put(i, new MemoryBlock(i, wordsSize, MemoryType.RAM));
+			this.DATA_MEMORY.add(i, new MemoryBlock(i, wordsSize));
 		}
 
-		this.CACHE_MEMORY = new SizeableHashMap<Integer, MemoryBlock>(cacheSize);
+		this.CACHE_MEMORY = new SizeableList<MemoryBlock>(cacheSize);
 
 		for (int i = 0; i < cacheSize; i++) {
-			this.CACHE_MEMORY.put(i, new MemoryBlock(i, wordsSize, MemoryType.CACHE));
+			this.CACHE_MEMORY.add(i, new MemoryBlock(i, wordsSize));
 		}
 
-		this.SECONDARY_CACHE_MEMORY = new SizeableHashMap<Integer, MemoryBlock>(secondaryCacheSize);
+		this.SECONDARY_CACHE_MEMORY = new SizeableList<MemoryBlock>(secondaryCacheSize);
 
 		for (int i = 0; i < secondaryCacheSize; i++) {
-			this.SECONDARY_CACHE_MEMORY.put(i, new MemoryBlock(i, wordsSize, MemoryType.SECOND));
+			this.SECONDARY_CACHE_MEMORY.add(i, new MemoryBlock(i, wordsSize));
 		}
-		
-		this.HARD_DISK_MEMORY = new SizeableHashMap<Integer, MemoryBlock>(ram);
+
+		this.HARD_DISK_MEMORY = new SizeableList<MemoryBlock>(hdSize);
 
 		for (int i = 0; i < ram; i++) {
-			this.HARD_DISK_MEMORY.put(i, new MemoryBlock(i, wordsSize, MemoryType.HARDDISK));
+			this.HARD_DISK_MEMORY.add(i, new MemoryBlock(i, wordsSize));
 		}
 
-		this.USE_LIST = new SizeableHashMap<Integer, MemoryBlock>(3);
+		this.USE_LIST = new SizeableList<MemoryBlock>(3);
 
 		for (int i = 0; i < 3; i++) {
-			this.USE_LIST.put(i, new MemoryBlock(0, i, MemoryType.INVALID));
+			this.USE_LIST.add(i, new MemoryBlock(0, i));
 		}
 
 		this.hardDisk = new HardDisk(fileName);
+		
 	}
 
 	public int getColumns() {
@@ -61,23 +62,19 @@ public class MemoryHandler {
 		return lines;
 	}
 
-	public SizeableHashMap<Integer, MemoryBlock> getMemory() {
+	public SizeableList<MemoryBlock> getMemory() {
 		return DATA_MEMORY;
 	}
 
-	public SizeableHashMap<Integer, MemoryBlock> getCacheMemory() {
+	public SizeableList<MemoryBlock> getCacheMemory() {
 		return CACHE_MEMORY;
 	}
 
-	public SizeableHashMap<Integer, MemoryBlock> getSecondMemory() {
+	public SizeableList<MemoryBlock> getSecondMemory() {
 		return SECONDARY_CACHE_MEMORY;
 	}
-	
-	public SizeableHashMap<Integer, MemoryBlock> getHardDiskMemory() {
-		return HARD_DISK_MEMORY;
-	}
 
-	public SizeableHashMap<Integer, MemoryBlock> getUseList() {
+	public SizeableList<MemoryBlock> getUseList() {
 		return USE_LIST;
 	}
 
@@ -87,7 +84,7 @@ public class MemoryHandler {
 
 	public void setList(MemoryBlock... blocks) {
 		for (int i = 0; i < blocks.length; i++) {
-			getUseList().replace(i, blocks[i]);
+			getUseList().set(i, blocks[i]);
 		}
 	}
 

@@ -18,7 +18,7 @@ public class MultiplyMethod extends Method {
 
 		// System.out.println("MULTIPLY " + pos1 + " * " + pos2 + " = " + sum);
 
-		memoryHandler.getUseList().get(2).getWords().replace(instruction.getList().get(2).getWord(), sum);
+		memoryHandler.getUseList().get(2).getWords().set(instruction.getList().get(2).getWord(), sum);
 	}
 
 }

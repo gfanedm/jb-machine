@@ -3,15 +3,16 @@ package io.github.gfanedm.machine.memory;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-import io.github.gfanedm.machine.map.SizeableHashMap;
-import io.github.gfanedm.machine.memory.MemoryHandler.MemoryType;
+import io.github.gfanedm.machine.map.SizeableList;
 
 public class HardDisk {
 
-	private static final MemoryBlock SAMPLE = new MemoryBlock(0, 4, MemoryType.HARDDISK);
-
-	private static final int MEMORY_SIZE = SAMPLE.serialize().length;
+	private static final MemoryBlock SAMPLE = new MemoryBlock(Integer.MAX_VALUE, 4);
+	private static final byte[] serialized = SAMPLE.serialize();
 
 	public final File file;
 
@@ -32,11 +33,51 @@ public class HardDisk {
 		}
 	}
 
-	public boolean write(MemoryBlock[] blocks) {
+	public boolean generate(int size, int words) {
+
+		List<MemoryBlock> blocks = new ArrayList<>();
+		for (int i = 0; i < size; i++) {
+			blocks.add(new MemoryBlock(i, words));
+		}
+
+		return write(blocks);
+
+	}
+
+	public boolean write(Collection<MemoryBlock> blocks) {
+
 		try {
+			file.delete();
+			file.createNewFile();
+
 			int a = 0;
+			int lastSize = 0;
 			for (MemoryBlock block : blocks) {
-				writeOne(block, a * block.serialize().length);
+				byte[] bl = block.serialize();
+				if (lastSize == 0) {
+					lastSize = bl.length;
+				}
+
+				boolean changed = false;
+
+				if (lastSize != bl.length) {
+					for (int i = 0; i < 3; i++) {
+						System.out.println("TAMANHODIF = " + a + " | TAM = " + bl.length + " | TAM S = "
+								+ serialized.length + " | bytes = " + a * bl.length + " : "
+								+ ((a * bl.length) + serialized.length));
+
+						block = SAMPLE;
+					}
+					changed = true;
+				}
+
+				writeOne(block, a);
+
+				if (changed) {
+					System.out.println("TAMANHO file= " + file.length());
+					System.out.println("______________________________________");
+				}
+
 				a++;
 			}
 		} catch (Exception e) {
@@ -47,6 +88,7 @@ public class HardDisk {
 	}
 
 	public boolean writeOne(MemoryBlock block, int pos) {
+		pos = pos * serialized.length;
 		try {
 			RandomAccessFile random = new RandomAccessFile(file, "rw");
 			random.skipBytes(pos);
@@ -60,29 +102,44 @@ public class HardDisk {
 	}
 
 	public MemoryBlock readOne(int pos) {
-		try {
-			byte[] reciever = SAMPLE.serialize();
+		pos = pos * SAMPLE.serialize().length;
+		if (pos >= file.length()) {
+			System.out.println("Tentou ler mais do que deveria.");
+			return null;
+		} else {
 
-			RandomAccessFile random = new RandomAccessFile(file, "rw");
-			random.skipBytes(pos);
-			random.read(reciever);
-			random.close();
+			try {
+				byte[] reciever = new byte[SAMPLE.serialize().length];
 
-			return MemoryBlock.deserialize(reciever);
-		} catch (Exception e) {
-			e.printStackTrace();
+				RandomAccessFile random = new RandomAccessFile(file, "rw");
+				random.skipBytes(pos);
+				random.read(reciever);
+				random.close();
+
+				return MemoryBlock.deserialize(reciever);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return null;
 		}
-		return null;
 	}
 
-	public boolean read(SizeableHashMap<Integer, MemoryBlock> hardDisk) {
+	public boolean read(SizeableList<MemoryBlock> hardDisk) {
 		try {
 			MemoryBlock block;
-			for (int i = 0; i < hardDisk.maxSize(); i++) {
-				if ((block = readOne(i * MEMORY_SIZE)) != null) {
-					hardDisk.put(i, block);
+			for (int i = 0; i < hardDisk.getMaxSize(); i++) {
+				// System.out.println("lendo : " + i + "/" + hardDisk.getMaxSize());
+				// System.out.println("Tam : " + (i * SAMPLE.serialize().length));
+
+				block = readOne(i);
+				if (block != null) {
+					// System.out.println("Block readed " + block.toString());
+					hardDisk.set(i, block);
 				}
+				// System.out.println("----------------------");
 			}
+
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();

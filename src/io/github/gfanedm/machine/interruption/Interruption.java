@@ -13,9 +13,13 @@ public class Interruption implements Runnable {
 	}
 
 	public void run() {
-		while (running) {
+		while (true) {
 			String line = scanner.nextLine();
-			if (line.equalsIgnoreCase("end")) {
+			if (line.equalsIgnoreCase("stop")) {
+				running = false;
+			}else if(line.equalsIgnoreCase("continue")){
+				running = true;
+			}else if(line.equalsIgnoreCase("end")){
 				System.exit(0);
 			}
 		}

@@ -29,7 +29,7 @@ public class PipelineHandler {
 		int code = instruction.getOpCode();
  
 		if (memoryHandler.getUseList().size() != 3)
-			throw new Exception(String.format("The memory is unavailable.", code));
+			throw new Exception(String.format("The memory is unavailable %s.", memoryHandler.getUseList().size()));
 
 		Method method = getMethod(code);
 		if (method == null)
